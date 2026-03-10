@@ -1,0 +1,989 @@
+{
+  "info": {
+    "_postman_id": "cb59eae5-f271-4036-92de-838b00496ed3",
+    "name": "WhatsApp Api Gateway",
+    "description": "Complete API collection for WhatsApp Automation backend. Base URL: http://localhost:5000\n\nSocket.IO QR Event: Connect to http://localhost:5000 and listen on event 'qr' to receive QR string in real-time.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51566938",
+    "_collection_link": "https://go.postman.co/collection/51566938-cb59eae5-f271-4036-92de-838b00496ed3?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "GET Health Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "status"
+              ]
+            },
+            "description": "Check if the server and WhatsApp client are running. Expected: { success: true, data: { status: 'ready' | 'initializing' } }"
+          },
+          "response": [
+            {
+              "name": "WhatsApp Ready",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "status"
+                  ]
+                },
+                "description": "Check if the server and WhatsApp client are running. Expected: { success: true, data: { status: 'ready' | 'initializing' } }"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 200,\n  \"success\": true,\n  \"message\": \"WhatsApp client is ready\",\n  \"data\": {\n    \"status\": \"ready\"\n  }\n}"
+            },
+            {
+              "name": "WhatsApp Not Ready",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "status"
+                  ]
+                },
+                "description": "Check if the server and WhatsApp client are running. Expected: { success: true, data: { status: 'ready' | 'initializing' } }"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 200,\n  \"success\": true,\n  \"message\": \"WhatsApp client is initializing\",\n  \"data\": {\n    \"status\": \"initializing\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "Send Message - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is success', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(true);",
+                  "  pm.expect(json.message).to.eql('Message queued successfully');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"Hello! This is a test message from WhatsApp API Gateway.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Sends a WhatsApp message to the given phone number. Phone format: country code + number (no +). Message is added to P-Queue for concurrency management."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"Hello! This is a test message from WhatsApp API Gateway.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Sends a WhatsApp message to the given phone number. Phone format: country code + number (no +). Message is added to P-Queue for concurrency management."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 200,\n  \"success\": true,\n  \"message\": \"Message queued successfully\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Phone Number Too Short",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Validation failed', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(false);",
+                  "  pm.expect(json.message).to.eql('Validation failed');",
+                  "  pm.expect(json.data).to.have.property('phone');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"12345\",\n  \"message\": \"Hello!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Phone number less than 10 digits. Should return 400 with Zod validation error on 'phone' field."
+          },
+          "response": [
+            {
+              "name": "Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"12345\",\n  \"message\": \"Hello!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Phone number less than 10 digits. Should return 400 with Zod validation error on 'phone' field."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 400,\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"data\": {\n    \"phone\": [\"Phone number must be at least 10 digits\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Phone Number Too Long",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Phone validation error', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(false);",
+                  "  pm.expect(json.data).to.have.property('phone');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"88017803654403333333\",\n  \"message\": \"Hello!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Phone number more than 15 digits. Should return 400 with Zod validation error on 'phone' field."
+          },
+          "response": [
+            {
+              "name": "Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"88017803654403333333\",\n  \"message\": \"Hello!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Phone number more than 15 digits. Should return 400 with Zod validation error on 'phone' field."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 400,\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"data\": {\n    \"phone\": [\"Phone number must not exceed 15 digits\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Empty Message Body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Message validation error', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(false);",
+                  "  pm.expect(json.data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Empty string for message field. Should return 400 with Zod error on 'message' field."
+          },
+          "response": [
+            {
+              "name": "Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Empty string for message field. Should return 400 with Zod error on 'message' field."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 400,\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"data\": {\n    \"message\": [\"Message cannot be empty\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Message Too Long (>1000 chars)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Message length validation error', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(false);",
+                  "  pm.expect(json.data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa11111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Message exceeds 1000 characters. Should return 400 with Zod error on 'message' field."
+          },
+          "response": [
+            {
+              "name": "Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa11111\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Message exceeds 1000 characters. Should return 400 with Zod error on 'message' field."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 400,\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"data\": {\n    \"message\": [\"Message must not exceed 1000 characters\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Missing Required Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Both fields missing validation error', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(false);",
+                  "  pm.expect(json.message).to.eql('Validation failed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Empty JSON body — both 'phone' and 'message' are missing. Should return 400 with errors on both fields."
+          },
+          "response": [
+            {
+              "name": "Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Empty JSON body — both 'phone' and 'message' are missing. Should return 400 with errors on both fields."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 400,\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"data\": {\n    \"phone\": [\"Required\"],\n    \"message\": [\"Required\"]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Only message field (missing phone)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Phone field missing', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.data).to.have.property('phone');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hello, missing phone!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "'phone' field is absent. Zod should catch it and return 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message - Only phone field (missing message)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Message field missing', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.data).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"8801780365440\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "'message' field is absent. Zod should catch it and return 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message - WhatsApp Not Ready (500)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 500', function () {",
+                  "  pm.response.to.have.status(500);",
+                  "});",
+                  "pm.test('Error response structure', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(false);",
+                  "  pm.expect(json.statusCode).to.eql(500);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"This will fail if WhatsApp is not ready.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Valid request but WhatsApp client is not authenticated/ready yet. Should return 500 via centralized error handler with message: 'WhatsApp client is not ready'."
+          },
+          "response": [
+            {
+              "name": "WhatsApp Not Ready",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"8801780365440\",\n  \"message\": \"This will fail if WhatsApp is not ready.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "Valid request but WhatsApp client is not authenticated/ready yet. Should return 500 via centralized error handler with message: 'WhatsApp client is not ready'."
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"statusCode\": 500,\n  \"success\": false,\n  \"message\": \"An unexpected error occurred. Please try again later.\",\n  \"data\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Message - Wrong Content-Type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "phone=8801780365440&message=hello",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "Sending form-encoded body without Content-Type: application/json. Express.json() won't parse it, Zod will see empty object and return 400."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rate Limiting",
+      "item": [
+        {
+          "name": "Trigger Rate Limit (429)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Run this request 101 times using Postman Collection Runner",
+                  "// with iteration count set to 101 to trigger the 429 rate limit.",
+                  "// Window: 15 minutes, Max: 100 requests."
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// On the 101st run, expect 429.",
+                  "if (pm.response.code === 429) {",
+                  "  pm.test('Rate limit triggered', function () {",
+                  "    pm.response.to.have.status(429);",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.success).to.eql(false);",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"8801712345678\",\n  \"message\": \"Rate limit test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            },
+            "description": "To trigger rate limit: use Postman Collection Runner → set iterations to 101. After 100 requests within 15 minutes, the 101st request should receive 429 Too Many Requests."
+          },
+          "response": [
+            {
+              "name": "Rate Limited",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"8801712345678\",\n  \"message\": \"Rate limit test\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/messages",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                },
+                "description": "To trigger rate limit: use Postman Collection Runner → set iterations to 101. After 100 requests within 15 minutes, the 101st request should receive 429 Too Many Requests."
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Too many requests, please try again after 15 minutes\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "cb59eae5-f271-4036-92de-838b00496ed3",
-    "name": "WhatsApp Api Gateway",
+    "name": "WhatsApp_Api_Gateway",
     "description": "Complete API collection for WhatsApp Automation backend. Base URL: http://localhost:5000\n\nSocket.IO QR Event: Connect to http://localhost:5000 and listen on event 'qr' to receive QR string in real-time.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51566938",
@@ -869,112 +869,6 @@
             "description": "Sending form-encoded body without Content-Type: application/json. Express.json() won't parse it, Zod will see empty object and return 400."
           },
           "response": []
-        }
-      ]
-    },
-    {
-      "name": "Rate Limiting",
-      "item": [
-        {
-          "name": "Trigger Rate Limit (429)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// Run this request 101 times using Postman Collection Runner",
-                  "// with iteration count set to 101 to trigger the 429 rate limit.",
-                  "// Window: 15 minutes, Max: 100 requests."
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// On the 101st run, expect 429.",
-                  "if (pm.response.code === 429) {",
-                  "  pm.test('Rate limit triggered', function () {",
-                  "    pm.response.to.have.status(429);",
-                  "    const json = pm.response.json();",
-                  "    pm.expect(json.success).to.eql(false);",
-                  "  });",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"phone\": \"8801712345678\",\n  \"message\": \"Rate limit test\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/messages",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "messages"
-              ]
-            },
-            "description": "To trigger rate limit: use Postman Collection Runner → set iterations to 101. After 100 requests within 15 minutes, the 101st request should receive 429 Too Many Requests."
-          },
-          "response": [
-            {
-              "name": "Rate Limited",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"phone\": \"8801712345678\",\n  \"message\": \"Rate limit test\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/api/messages",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "messages"
-                  ]
-                },
-                "description": "To trigger rate limit: use Postman Collection Runner → set iterations to 101. After 100 requests within 15 minutes, the 101st request should receive 429 Too Many Requests."
-              },
-              "status": "Too Many Requests",
-              "code": 429,
-              "_postman_previewlanguage": "Text",
-              "header": [],
-              "cookie": [],
-              "body": "{\n  \"success\": false,\n  \"message\": \"Too many requests, please try again after 15 minutes\"\n}"
-            }
-          ]
         }
       ]
     }

@@ -4,8 +4,7 @@ import { sendResponse } from "../utils/response";
 
 const messageSchema = z.object({
     phone: z.string()
-        .min(10, { message: 'Phone number must be at least 10 digits' })
-        .max(15, { message: 'Phone number must not exceed 15 digits' }),
+        .regex(/^\+?\d{10,15}$/, { message: 'Phone number must be 10–15 digits and may start with +' }),
     message: z.string()
         .min(1, { message: 'Message cannot be empty' })
         .max(1000, { message: 'Message must not exceed 1000 characters' }),

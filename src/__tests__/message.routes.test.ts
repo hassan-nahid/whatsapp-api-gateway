@@ -8,6 +8,7 @@ jest.mock('../services/queue.service', () => ({
 jest.mock('../services/whatsapp.service', () => ({
     sendMessage: jest.fn(),
     initializeWhatsApp: jest.fn(),
+    isClientReady: jest.fn().mockReturnValue(true),
 }));
 
 describe('POST /api/messages', () => {
@@ -46,7 +47,7 @@ describe('POST /api/messages', () => {
             .send({ phone: '12345', message: 'Hello' });
 
         expect(res.status).toBe(400);
-        expect(res.body.data.phone).toContain('Phone number must be at least 10 digits');
+        expect(res.body.data.phone).toContain('Phone number must be 10\u201315 digits and may start with +');
     });
 
     it('should return 400 when message is empty', async () => {

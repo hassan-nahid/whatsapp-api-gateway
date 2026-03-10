@@ -45,7 +45,7 @@ describe('validateMessage middleware', () => {
         expect(mockNext).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-        expect(jsonCall.data.phone).toContain('Phone number must be at least 10 digits');
+        expect(jsonCall.data.phone).toContain('Phone number must be 10\u201315 digits and may start with +');
     });
 
     it('should return 400 when phone is too long (more than 15 digits)', () => {
@@ -57,7 +57,19 @@ describe('validateMessage middleware', () => {
         expect(mockNext).not.toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(400);
         const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
-        expect(jsonCall.data.phone).toContain('Phone number must not exceed 15 digits');
+        expect(jsonCall.data.phone).toContain('Phone number must be 10\u201315 digits and may start with +');
+    });
+
+    it('should return 400 when phone contains non-digit characters', () => {
+        const req = mockReq({ phone: 'abcdefghij', message: 'Hello' });
+        const res = mockRes();
+
+        validateMessage(req, res, mockNext);
+
+        expect(mockNext).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(400);
+        const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+        expect(jsonCall.data.phone).toContain('Phone number must be 10\u201315 digits and may start with +');
     });
 
     it('should return 400 when message is empty', () => {

@@ -7,6 +7,7 @@ jest.mock('../services/queue.service', () => ({
 
 jest.mock('../services/whatsapp.service', () => ({
     sendMessage: jest.fn(),
+    isClientReady: jest.fn().mockReturnValue(true),
 }));
 
 import { addToQueue } from '../services/queue.service';

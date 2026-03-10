@@ -5,35 +5,71 @@ import qrcode from 'qrcode-terminal';
 
 let client: Client;
 let isReady = false;
+let isReconnecting = false;
 
-export const initializeWhatsApp = (io: Server): void => {
-    client = new Client({
-        authStrategy: new LocalAuth(),
-    });
+const PUPPETEER_ARGS = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-accelerated-2d-canvas',
+    '--no-first-run',
+    '--no-zygote',
+    '--disable-gpu',
+];
 
+const createClient = (): Client => new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        args: PUPPETEER_ARGS,
+    },
+});
+
+const attachEvents = (io: Server): void => {
     client.on('qr', (qr) => {
-        qrcode.generate(qr, { small: true }); 
+        qrcode.generate(qr, { small: true });
         io.emit('qr', qr);
         logger.info('QR code generated');
     });
 
     client.on('ready', () => {
         isReady = true;
+        isReconnecting = false;
         logger.info('WhatsApp client is ready');
     });
+
     client.on('authenticated', () => {
-        logger.info('WhatsApp client authenticated')
-    })
-    client.on('disconnected', async (reason) => {
-        isReady = false;
-        logger.warn('WhatsApp client disconnected', {reason});
-        try{
-            await client.initialize();
-        } catch (error) {
-            logger.error('Failed to reinitialize WhatsApp client', { error });
-        }
+        logger.info('WhatsApp client authenticated');
     });
-    client.initialize();
+
+    client.on('disconnected', async (reason) => {
+        if (isReconnecting) return;
+        isReady = false;
+        isReconnecting = true;
+        logger.warn('WhatsApp client disconnected', { reason });
+
+        try {
+            await client.destroy();
+        } catch {
+            // ignore destroy errors during reconnect
+        }
+
+        setTimeout(() => {
+            client = createClient();
+            attachEvents(io);
+            client.initialize().catch((error) => {
+                isReconnecting = false;
+                logger.error('Failed to reinitialize WhatsApp client', { error });
+            });
+        }, 5000);
+    });
+};
+
+export const initializeWhatsApp = (io: Server): void => {
+    client = createClient();
+    attachEvents(io);
+    client.initialize().catch((error) => {
+        logger.error('WhatsApp client initialization failed', { error });
+    });
 }
 
 export const isClientReady = (): boolean => isReady;

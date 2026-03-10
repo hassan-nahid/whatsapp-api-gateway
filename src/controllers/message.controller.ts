@@ -11,7 +11,7 @@ export const sendMessageController = async (req: Request, res: Response, next: N
             throw new Error('WhatsApp client is not ready');
         }
 
-        addToQueue(() => sendMessage(phone, message));
+        await addToQueue(() => sendMessage(phone, message));
 
         sendResponse(res, {
             statusCode: 200,

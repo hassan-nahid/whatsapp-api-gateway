@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendMessageController } from '../controllers/message.controller';
 
 jest.mock('../services/queue.service', () => ({
-    addToQueue: jest.fn(),
+    addToQueue: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../services/whatsapp.service', () => ({

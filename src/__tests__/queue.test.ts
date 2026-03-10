@@ -36,12 +36,10 @@ describe('queue service', () => {
         expect(results).toContain(3);
     });
 
-    it('should not throw when a task fails', async () => {
+    it('should reject when a task fails', async () => {
         const failingTask = jest.fn().mockRejectedValue(new Error('Task failed'));
 
-        expect(() => addToQueue(failingTask)).not.toThrow();
-
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await expect(addToQueue(failingTask)).rejects.toThrow('Task failed');
 
         expect(failingTask).toHaveBeenCalledTimes(1);
     });

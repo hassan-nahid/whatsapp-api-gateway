@@ -82,10 +82,16 @@ export const destroyClient = async (): Promise<void> => {
 };
 
 export const sendMessage = async (number: string, message: string): Promise<void> => {
-    if (!isReady) {
+    if (!isReady || !client) {
         throw new Error('WhatsApp client is not ready');
     }
     const sanitized = number.replace(/^\+/, '');
     const chatId = `${sanitized}@c.us`;
-    await client.sendMessage(chatId, message);
+    try {
+        await client.sendMessage(chatId, message);
+    } catch (error) {
+        // Puppeteer/session errors during send mean client is no longer usable
+        isReady = false;
+        throw new Error('WhatsApp client is not ready');
+    }
 }
